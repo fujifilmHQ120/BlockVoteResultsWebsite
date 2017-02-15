@@ -5,6 +5,76 @@
  * ------------------------------------------------------------------- 
  */ 
 
+console.log("Hello World!");
+//Code for downloading the results for each district 
+
+
+
+//Code for downloading the results for each district 
+
+
+
+// var electionName;
+
+
+
+// var districtList;
+
+// var BVbaseURL = "https://blockvotenode2.mybluemix.net/";
+// var getElectionInfo = "getElectionInfo/";
+// var results = "results/";
+// var readDistrict = "readDistrict/";
+
+// //TODO: These hardcoded values are temporary. 
+// //Get the election name
+// //get the district list 
+// var electionInfo = {
+//   "response": {
+//     "_id": "Scottish Independence",
+//     "electionData": {
+//       "districts": [
+//         "edinburgh",
+//         "glasgow",
+//         "aberdeen",
+//         "dundee"ss
+//       ],
+//       "voteOptions": [
+//         "yes",
+//         "no",
+//         "maybe"
+//       ]
+//     }
+//   },
+//   "error": null
+// }
+
+// electionInfo.response.electionData.districts.forEach(function callback(currVal, index, array){
+// 	var POSTdata = {
+// 		'region' : 'US',
+// 		'username' : 'tommy',
+// 		'district' : currVal
+// 	};
+
+// 	$.ajax({
+//         type: 'POST',
+//         url: BVbaseURL + readDistrict,
+//         dataType: 'json',
+//         data: POSTdata
+//     }).done(function(data) {
+//         console.log(data);
+
+//     });
+
+// });
+    
+
+//feed fake values. 
+
+
+
+
+
+
 (function($) {
 
 	"use strict";
