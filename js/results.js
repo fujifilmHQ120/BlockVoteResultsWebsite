@@ -50,8 +50,10 @@
         {districtName: "r4", votes: 700000}
     ];*/
 
+	var chartsDrawn = false;
 
 function drawDonutCharts(radius, innerRadius, data, idDiv, choices, colors){
+	console.log(data);
 	let padding = 10;
 
 	let color = d3.scaleOrdinal()
@@ -72,47 +74,52 @@ function drawDonutCharts(radius, innerRadius, data, idDiv, choices, colors){
 			return {name: name, value: +d[name]};
 		});
 	});
+	if(!chartsDrawn){
+		let legend = d3.select("body").select(idDiv).append("svg")
+			.attr("class", "legend")
+			.attr("width", radius)
+			.attr("height", radius * 2)
+			.selectAll("g")
+			.data(color.domain().slice().reverse())
+			.enter().append("g")
+			.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
-	let legend = d3.select("body").select(idDiv).append("svg")
-		.attr("class", "legend")
-		.attr("width", radius)
-		.attr("height", radius * 2)
-		.selectAll("g")
-		.data(color.domain().slice().reverse())
-		.enter().append("g")
-		.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+		legend.append("rect")
+			.attr("width", 18)
+			.attr("height", 18)
+			.style("fill", color);
 
-	legend.append("rect")
-		.attr("width", 18)
-		.attr("height", 18)
-		.style("fill", color);
+		legend.append("text")
+			.attr("x", 24)
+			.attr("y", 9)
+			.attr("dy", ".35em")
+			.text(function(d) { return d; });
+	}
 
-	legend.append("text")
-		.attr("x", 24)
-		.attr("y", 9)
-		.attr("dy", ".35em")
-		.text(function(d) { return d; });
-
-	let svg = d3.select("body").select(idDiv).selectAll(".pie")
+	let svg = d3.select("body").selectAll(idDiv).selectAll(".pie")
 		.data(data)
+		
 		.enter().append("svg")
 		.attr("class", "pie")
 		.attr("width", radius * 2)
 		.attr("height", radius * 2)
 		.append("g")
 		.attr("transform", "translate(" + radius + "," + radius + ")");
-
-
-	let tooltip = d3.select("body").select(idDiv)
-		.append("div")
-		.style("position", "absolute")
-		.style("z-index", "10")
-		.style("visibility", "hidden")
-
+	
+	let tooltip = d3.select("body").select(idDiv).select(".tooltip");
+	if(!chartsDrawn){
+		tooltip = d3.select("body").select(idDiv)
+			.append("div")
+			.attr("class", "tooltip")
+			.style("position", "absolute")
+			.style("z-index", "10")
+			.style("visibility", "hidden");
+	}
 
 
 	svg.selectAll(".arc")
 		.data(function(d) { return pie(d.votes); })
+		
 		.enter().append("path")
 		.attr("class", "arc")
 		.attr("d", arc)
@@ -128,11 +135,13 @@ function drawDonutCharts(radius, innerRadius, data, idDiv, choices, colors){
 			d3.select(this).style("stroke", "white");
 			return tooltip.style("visibility", "hidden");
 		});
+		
+
 
 	svg.append("text")
 		.attr("dy", ".35em")
 		.style("text-anchor", "middle")
-		.text(function(d) { return d.districtName; });
+		.text(function(d) {return d.districtName;});
 }
 
 
@@ -168,6 +177,16 @@ function drawBubbleChart(data, idDiv){
 				d.class = id.slice(i + 1);
 			}
 		});
+		
+	let tooltip = d3.select("body").select(idDiv).select(".tooltip");
+	if(!chartsDrawn){
+		tooltip = d3.select("body").select(idDiv)
+			.append("div")
+			.attr("class", "tooltip")
+			.style("position", "absolute")
+			.style("z-index", "10")
+			.style("visibility", "hidden");
+	}
 
 	var node = svg.selectAll(".node")
 		.data(pack(root).leaves())
@@ -202,7 +221,7 @@ function drawBubbleChart(data, idDiv){
 		.enter().append("tspan")
 		.attr("x", 0)
 		.attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
-		.text(function(d) { return d; });
+		.text(function(d) {return d; });
 }
 
 
@@ -218,34 +237,110 @@ function drawCharts(choices, totalVotes, districtData){
 		let resp = districtData[i][0].response;
 		let respObj = JSON.parse(resp);
 		data.push({districtName:respObj.DistrictName, yes: respObj.TotalVotes.yes, no: respObj.TotalVotes.no, maybe: respObj.TotalVotes.maybe});
-		dataBubble.push({districtName: respObj.DistrictName, votes: respObj.TotalVotes.yes + respObj.TotalVotes.no + respObj.TotalVotes.maybe});
+		let dataEntryBubbleChart = {districtName: respObj.DistrictName, votes: respObj.TotalVotes.yes + respObj.TotalVotes.no + respObj.TotalVotes.maybe};
+		if(dataEntryBubbleChart.votes != 0)
+			dataBubble.push(dataEntryBubbleChart);
 	}
-	console.log(dataTotal);
+	/*console.log(dataTotal);
 	console.log(data); 
-	console.log(dataBubble); 
+	console.log(dataBubble);*/ 
 	let colors = ["#98abc5", "#8a89a6", "#7b6888"];
 	drawDonutCharts(74, 44,  data, "#districtResultCharts", choices, colors);
 	drawDonutCharts(150,100, dataTotal, "#totalResults", choices, colors );
-	drawBubbleChart(dataBubble, "#bubbleChart");
+	if(dataBubble.length != 0)
+		drawBubbleChart(dataBubble, "#bubbleChart");
+	chartsDrawn = true; 
+}
+
+function poll(){
+	   setTimeout (function () {
+		  multAjaxCallResults(0,10);
+	 }, 5000);
+}
+
+function deleteCharts(){
+	let svg = d3.select("body").selectAll("#totalResults").selectAll(".pie");
+	svg.remove();
+	 svg = d3.select("body").selectAll("#districtResultCharts").selectAll(".pie");
+	svg.remove();
+	let node =  d3.select("#bubbleChart").select("svg").selectAll(".node");
+	node.remove();
+	
+}
+
+function multAjaxCallResults(count, finalCount){
+	if(count < finalCount){
+		$.ajax({
+			url:"https://blockvotenode2.mybluemix.net/results",
+			//url:"results",
+			crossDomain: true,
+			success:function(resp){
+				if(resp.error == null){
+					let response = JSON.parse(resp.response);
+					let vOp = response.VoteOptions;
+					let districts = response.Districts;
+					let calls = [];
+					for(let i in districts){
+						
+						let call = $.ajax({
+							type:"POST",
+							//url: "readDistrict",
+							url:"https://blockvotenode2.mybluemix.net/readDistrict",
+							crossDomain: true,
+							data: { "district":districts[i]},
+							failure:function(obj, status, textStatus){
+								console.log("problem getting district data");
+							}
+							
+						});
+						calls.push(call);
+						
+					}
+					$.when.apply(null, calls).then(function(){
+						let dataOK = true;
+						for(let i in arguments){
+							let resp = arguments[i][0];
+							if(resp.error != null)
+							{
+								dataOK = false;
+								count++;
+								console.log("here");
+								multAjaxCallResults(count, finalCount);
+							}
+						}
+						if(dataOK){
+							deleteCharts();
+							drawCharts(response.VoteOptions, response.TotalVotes , arguments);
+							poll();
+						}
+					});
+				}
+				else{
+					count ++;
+					multAjaxCallResults(count, finalCount);
+				}
+			},
+			//failure:failure
+		});
+	}
 }
 	
 
 $(window).load(function(){
+	multAjaxCallResults(0, 10);
 	
-	$.ajax({
+	
+	/*$.ajax({
 		url:"https://blockvotenode2.mybluemix.net/results",
 		crossDomain: true,
 		success:function(resp){
-			console.log(resp);
-			console.log(resp.response);
-			let response = JSON.parse(resp.response);
-			console.log(response);
+			/*console.log(resp);
+			console.log(resp.response);*/
+			/*let response = JSON.parse(resp.response);
+			/*console.log(response);
 			console.log("voteOptions:" + response.VoteOptions);
-			console.log("Districts:" + response.Districts);
-			let vOp = response.VoteOptions;
-			/*for(i in vOp){
-				console.log("option:" + vOp[i]);
-			}*/
+			console.log("Districts:" + response.Districts);*/
+			/*let vOp = response.VoteOptions;
 			let districts = response.Districts;
 			let calls = [];
 			for(let i in districts){
@@ -270,7 +365,7 @@ $(window).load(function(){
 		failure:function(obj, status, textStatus){
 			console.log("fail");
 		}
-	});
+	});*/
 	/*
 	let choices = ["yes","no","maybe"];
 		let colors = ["#98abc5", "#8a89a6", "#7b6888"];
