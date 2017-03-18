@@ -131,7 +131,7 @@
 
 
                 // Set chart options
-                var TotalOptions = { fontName: "raleway-bold" };
+                var TotalOptions = { fontName: "raleway-bold", fill:'transparent' };
                 var chart = new google.visualization.PieChart(document.getElementById('chart_totals'));
                 chart.draw(TotalData, TotalOptions);
 
@@ -149,7 +149,7 @@
                     });
 
                     data.addRows(rows);
-                    var options = { fontName: "raleway-bold" };
+                    var options = { fontName: "raleway-bold",fill:'transparent'};
 
                     if (totalVotesDistrict != 0) {
 
