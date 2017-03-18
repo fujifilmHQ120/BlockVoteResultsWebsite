@@ -126,6 +126,8 @@
                     rows.push([element, district.response.TotalVotes[element]])
                 });
 
+                data.addRows(rows);
+
                 var options = {
                     'title': 'Results for ' + district.response.DistrictName,
                 };
