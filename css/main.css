@@ -1147,6 +1147,13 @@ a.menu-toggle {
  * ------------------------------------------------------------------- 
  */
 
+
+#welcome{
+	color: #FFFFFF;
+}
+
+
+
 #intro {
 	background: #14181E url(../images/intro-bg.jpg) no-repeat center;
 	-webkit-background-size: cover;
@@ -1208,7 +1215,6 @@ a.menu-toggle {
 	height: 6.6rem;
 	line-height: 6rem;
 	padding: 0 3rem !important;
-	margin-top: 1.8rem;
 	font-family: "raleway-heavy", sans-serif;
 	font-size: 1.4rem;
 	text-transform: uppercase;
@@ -1601,6 +1607,12 @@ a.menu-toggle {
  *
  * ------------------------------------------------------------------- 
  */
+
+
+.google_chart {
+width:inherit;
+height:inherit;
+}
 
 #results {
 	background: #EAEAED;

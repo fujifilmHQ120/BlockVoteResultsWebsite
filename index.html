@@ -78,6 +78,14 @@
 
 
         function drawMarkersMap() {
+
+            var chartcontainer = document.getElementById("chartContainer");
+
+            while (chartcontainer.hasChildNodes()) {
+                chartcontainer.removeChild(chartcontainer.lastChild);
+            }
+
+
             /*            var data = google.visualization.arrayToDataTable([                //commenting out map because not all elections can be pinpointed to a city
                             ['City', 'No', 'Yes'],
                             ['Edinburgh', edin['no'], edin['yes']],
@@ -109,29 +117,34 @@
 
             TotalData.addRows(rows);
 
+            var todelete = document.getElementById("defaultResults");
+
+            if (todelete) {
+                todelete.parentNode.removeChild(todelete);
+            }
+
             if (totalVotes == 0) {
                 var h = document.createElement("h5");
                 var t = document.createTextNode("No votes have been cast yet");
                 h.appendChild(t);
-                document.getElementById("chartContainer").appendChild(h);
+                chartcontainer.appendChild(h);
             } else {
 
                 var h = document.createElement("h5");
                 var t = document.createTextNode("Total Results");
                 h.appendChild(t);
-                document.getElementById("chartContainer").appendChild(h);
+                chartcontainer.appendChild(h);
 
 
                 var div = document.createElement("div");
                 div.className = "google_chart"
                 div.id = 'chart_totals'
-                document.getElementById("chartContainer").appendChild(div);
-
-
-
+                chartcontainer.appendChild(div);
 
                 // Set chart options
-                var TotalOptions = { fontName: "raleway-bold", fill:'transparent' };
+                var TotalOptions = {
+                    fontName: "raleway-bold", backgroundColor: "#14181e", color: "white", legend: { textStyle: { color: 'white' } }
+                };
                 var chart = new google.visualization.PieChart(document.getElementById('chart_totals'));
                 chart.draw(TotalData, TotalOptions);
 
@@ -149,7 +162,7 @@
                     });
 
                     data.addRows(rows);
-                    var options = { fontName: "raleway-bold",fill:'transparent'};
+                    var options = { fontName: "raleway-bold", backgroundColor: "#14181e", color: "white", legend: { textStyle: { color: 'white' } } };
 
                     if (totalVotesDistrict != 0) {
 
@@ -162,8 +175,8 @@
                         var h = document.createElement("h5");
                         var t = document.createTextNode(district.response.DistrictName);
                         h.appendChild(t);
-                        document.getElementById("chartContainer").appendChild(h);
-                        document.getElementById("chartContainer").appendChild(div);
+                        chartcontainer.appendChild(h);
+                        chartcontainer.appendChild(div);
                         chart.draw(data, options);
 
                     }
@@ -212,9 +225,10 @@
                    <div class='video-link'>
                         <a href="#video-popup"><img src="images/play-button.png" alt=""></a>
                     </div>-->
-                    <h5>Welcome to BlockVote</h5>
+                    <h5 id="welcome">Welcome to BlockVote</h5>
                     <h1>The future of voting, today.</h1>
-                    <a class="button stroke smoothscroll" href="#process" title="">Learn More</a>
+                   
+                    <a id="learnMore" class="button stroke smoothscroll" href="#process" title="">Learn More</a>
                 </div>
             </div>
         </div>
@@ -336,6 +350,7 @@
             <!--div id="chart_div" class="google_chart" style="width: 500px; height: 200px;"></div-->
 
             <div id="chartContainer">
+                <h5 id="defaultResults">Cannot get live results</h5>
             </div>
         </div>
         <!-- faq

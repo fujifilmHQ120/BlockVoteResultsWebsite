@@ -30,7 +30,11 @@ var getElectionInfo = "getElectionInfo/";
 
 		});
 
-	})
+	});
+
+	$(window).resize(function(){
+        drawMarkersMap();
+        });
 
 
 	/*----------------------------------------------------*/
