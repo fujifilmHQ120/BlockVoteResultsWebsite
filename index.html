@@ -44,6 +44,8 @@
             dataType: 'json'
         }).done(function (data) {
             electionInfo = data;
+            var resultsTitle = document.getElementById('resultTitle')
+            resultsTitle.innerHTML = resultsTitle.innerHTML + " for " + data.response._id;
             console.log(electionInfo);
             data.response.electionData.districts.forEach(function callback(currVal, index, array) {
                 var POSTdata = {
@@ -98,50 +100,76 @@
             TotalData.addColumn('string', 'choice');
             TotalData.addColumn('number', 'votes');
             var rows = [];
+            var totalVotes = 0;
 
             electionInfo.response.electionData.voteOptions.forEach(function (element) {
                 rows.push([element, electionResults.response.TotalVotes[element]])
+                totalVotes += electionResults.response.TotalVotes[element];
             });
 
             TotalData.addRows(rows);
 
-            // Set chart options
-            var TotalOptions = {
-                'title': 'Total Results for ' + electionInfo.response._id,
-            };
-            var chart = new google.visualization.PieChart(document.getElementById('chart_totals'));
-            chart.draw(TotalData, TotalOptions);
+            if (totalVotes == 0) {
+                var h = document.createElement("h5");
+                var t = document.createTextNode("No votes have been cast yet");
+                h.appendChild(t);
+                document.getElementById("chartContainer").appendChild(h);
+            } else {
 
-            //generate pies for each district
-            //generate chart
-            districtInfoList.forEach(function (district) { //for each district
-                console.log("district")
-                console.log(district)
-                rows = [];
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'choice');
-                data.addColumn('number', 'votes');
+                var h = document.createElement("h5");
+                var t = document.createTextNode("Total Results");
+                h.appendChild(t);
+                document.getElementById("chartContainer").appendChild(h);
 
-                electionInfo.response.electionData.voteOptions.forEach(function (element) { //for each vote option
-                    rows.push([element, district.response.TotalVotes[element]])
-                });
 
-                data.addRows(rows);
-
-                var options = {
-                    'title': 'Results for ' + district.response.DistrictName,
-                };
                 var div = document.createElement("div");
-                div.className="google_chart"
-                div.id='chart_' + district.response.DistrictName
-
-                //var chart = new google.visualization.PieChart(document.getElementById('chart_' + district.response.DistrictName));
-                var chart = new google.visualization.PieChart(div);
+                div.className = "google_chart"
+                div.id = 'chart_totals'
                 document.getElementById("chartContainer").appendChild(div);
-                chart.draw(data, options);
 
-            });
-        };
+
+
+
+                // Set chart options
+                var TotalOptions = { fontName: "raleway-bold" };
+                var chart = new google.visualization.PieChart(document.getElementById('chart_totals'));
+                chart.draw(TotalData, TotalOptions);
+
+                //generate pies for EACH DISTRICT
+                //generate chart
+                districtInfoList.forEach(function (district) { //for each district
+                    var totalVotesDistrict = 0;
+                    rows = [];
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('string', 'choice');
+                    data.addColumn('number', 'votes');
+                    electionInfo.response.electionData.voteOptions.forEach(function (element) { //for each vote option
+                        rows.push([element, district.response.TotalVotes[element]])
+                        totalVotesDistrict += district.response.TotalVotes[element];
+                    });
+
+                    data.addRows(rows);
+                    var options = { fontName: "raleway-bold" };
+
+                    if (totalVotesDistrict != 0) {
+
+                        var div = document.createElement("div");
+                        div.className = "google_chart"
+                        div.id = 'chart_' + district.response.DistrictName
+
+                        //var chart = new google.visualization.PieChart(document.getElementById('chart_' + district.response.DistrictName));
+                        var chart = new google.visualization.PieChart(div);
+                        var h = document.createElement("h5");
+                        var t = document.createTextNode(district.response.DistrictName);
+                        h.appendChild(t);
+                        document.getElementById("chartContainer").appendChild(h);
+                        document.getElementById("chartContainer").appendChild(div);
+                        chart.draw(data, options);
+
+                    }
+                });
+            }
+        }
     </script>
 
 
@@ -298,18 +326,16 @@
     <section id="results">
         <div class="row section-intro">
             <div class="col-twelve with-bottom-line">
-                <h1>Live Results for</h1>
-            
+                <h1 id="resultTitle">Live Results</h1>
+
             </div>
             <div class="row section-intro">
             </div>
 
-            <h5>Total Results</h5>
             <!-- map -->
             <!--div id="chart_div" class="google_chart" style="width: 500px; height: 200px;"></div-->
 
             <div id="chartContainer">
-                <div id="chart_totals" class="google_chart"></div>
             </div>
         </div>
         <!-- faq
