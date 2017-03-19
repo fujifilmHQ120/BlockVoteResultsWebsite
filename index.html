@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/vendor.css">
     <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/ring.css">
     <!-- script
     ================================================== -->
     <script src="js/modernizr.js"></script>
@@ -43,37 +44,64 @@
             url: BVbaseURL + getElectionInfo,
             dataType: 'json'
         }).done(function (data) {
+
+            if (data.error) {
+                console.error("error getting election info")
+                console.error(data.error)
+            }
+
             electionInfo = data;
-            var resultsTitle = document.getElementById('resultTitle')
-            resultsTitle.innerHTML = resultsTitle.innerHTML + " for " + data.response._id;
             console.log(electionInfo);
-            data.response.electionData.districts.forEach(function callback(currVal, index, array) {
-                var POSTdata = {
-                    'district': currVal
-                };
-                $.ajax({
-                    type: 'POST',
-                    url: BVbaseURL + readDistrict,
-                    dataType: 'json',
-                    data: POSTdata
-                }).done(function (data) {
-                    data.response = JSON.parse(data.response);
-                    districtInfoList.push(data)
-                });
-            });
+
+            var resultsTitle = document.getElementById('resultTitle')
+            resultsTitle.innerHTML = resultsTitle.innerHTML + " for " + electionInfo.response._id;
+
             $.ajax({
                 type: 'GET',
                 url: BVbaseURL + results,
                 dataType: 'json',
             }).done(function (data) {
+
+                if (data.error) {
+                    console.error("error getting results info")
+                    console.error(data.error)
+                }
+
                 data.response = JSON.parse(data.response);
                 electionResults = data;
-
-                google.charts.load('upcoming', { 'packages': ['geochart', 'corechart'], mapsApiKey: mykey });
-                google.charts.setOnLoadCallback(drawMarkersMap);
                 console.log(electionResults)
+
+                electionInfo.response.electionData.districts.forEach(function callback(currVal, index, array) {
+                    var POSTdata = {
+                        'district': currVal
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: BVbaseURL + readDistrict,
+                        dataType: 'json',
+                        data: POSTdata
+                    }).done(function (data) {
+                        if (data.error) {
+                            console.error("error getting district info")
+                            console.error(data.error)
+                        }
+                        data.response = JSON.parse(data.response);
+                        districtInfoList.push(data)
+
+                        if (districtInfoList.length === electionInfo.response.electionData.districts.length) {
+                            google.charts.load('upcoming', { 'packages': ['geochart', 'corechart'], mapsApiKey: mykey });
+                            google.charts.setOnLoadCallback(drawMarkersMap);
+                        }
+
+
+                    });
+                });
+                console.log(districtInfoList)
+
             });
-            console.log(districtInfoList);
+
+
+            //console.log(districtInfoList);
         });
 
 
@@ -206,7 +234,7 @@
                     <li class="current"><a class="smoothscroll" href="#intro" title="">Home</a></li>
                     <li><a class="smoothscroll" href="#process" title="">Process</a></li>
                     <li><a class="smoothscroll" href="#features" title="">Features</a></li>
-                    <li><a href="resultsPage.html" title="">Results</a></li>
+                    <li><a href="#results" title="">Results</a></li>
                     <li><a class="smoothscroll" href="#faq" title="">FAQ</a></li>
                 </ul>
             </nav>
@@ -227,7 +255,7 @@
                     </div>-->
                     <h5 id="welcome">Welcome to BlockVote</h5>
                     <h1>The future of voting, today.</h1>
-                   
+
                     <a id="learnMore" class="button stroke smoothscroll" href="#process" title="">Learn More</a>
                 </div>
             </div>
@@ -350,7 +378,12 @@
             <!--div id="chart_div" class="google_chart" style="width: 500px; height: 200px;"></div-->
 
             <div id="chartContainer">
-                <h5 id="defaultResults">Cannot get live results</h5>
+
+
+                <h5 id="defaultResults">Loading live results</h5>
+                <div class="spinner"></div>
+
+
             </div>
         </div>
         <!-- faq
