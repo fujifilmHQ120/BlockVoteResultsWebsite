@@ -6,7 +6,7 @@
  */
 
 
-var BVbaseURL = "http://0.0.0.0:3000/" //"https://blockvotenode2.mybluemix.net/";
+var BVbaseURL = "https://blockvotenode2.mybluemix.net/"; //"http://0.0.0.0:3000/"
 var getElectionInfo = "getElectionInfo/";
 var results = "results/";
 var readDistrict = "readDistrict/";
