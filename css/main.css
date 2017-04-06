@@ -17,7 +17,7 @@
  * 08. intro section
  * 09. process section
  * 10. features section
- * 11. results section
+ * 11. pricing section
  * 12. testimomials section 
  * 13. faq section 
  *	14. ad-section 
@@ -1147,13 +1147,6 @@ a.menu-toggle {
  * ------------------------------------------------------------------- 
  */
 
-
-#welcome{
-	color: #FFFFFF;
-}
-
-
-
 #intro {
 	background: #14181E url(../images/intro-bg.jpg) no-repeat center;
 	-webkit-background-size: cover;
@@ -1215,6 +1208,7 @@ a.menu-toggle {
 	height: 6.6rem;
 	line-height: 6rem;
 	padding: 0 3rem !important;
+	margin-top: 1.8rem;
 	font-family: "raleway-heavy", sans-serif;
 	font-size: 1.4rem;
 	text-transform: uppercase;
@@ -1445,7 +1439,7 @@ a.menu-toggle {
 .process-content .image-part {
 	margin: 0 auto;
 	height: 660px;
-	background-image: url("../images/blockVoteDemo.png");
+	background-image: url("../images/blockVoteDemoNew.png");
 	background-repeat: no-repeat;
 	background-position: center;
 	-webkit-background-size: contain;
@@ -1603,58 +1597,53 @@ a.menu-toggle {
 
 /** 
  * ===================================================================
- * results section
+ * pricing section
  *
  * ------------------------------------------------------------------- 
  */
 
-
-.google_chart {
-width:inherit;
-height:inherit;
-}
-
-#results {
+#pricing {
 	background: #EAEAED;
 	padding-top: 12rem;
+	padding-bottom: 9.6rem;
 }
-.results-content {
+.pricing-content {
 	margin-top: 6.6rem;
 	max-width: 1280px;
 }
-.results-content .bgrid {
+.pricing-content .bgrid {
 	margin-bottom: 3.6rem;
 }
-.results-content .price-block {
+.pricing-content .price-block {
 	background-color: #FFFFFF;
 	border-radius: 5px;
 	overflow: hidden;
 	text-align: center;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
-.results-content .price-block .top-part,
-.results-content .price-block .bottom-part {
+.pricing-content .price-block .top-part,
+.pricing-content .price-block .bottom-part {
 	padding: 3.9rem 1.5rem;
 }
-.results-content .price-block .top-part {
+.pricing-content .price-block .top-part {
 	background: #58687b;
 	color: #FFFFFF;
 	padding-bottom: 2.4rem;
 	position: relative;
 }
-.results-content .price-block .bottom-part {
+.pricing-content .price-block .bottom-part {
 	padding-top: 2.4rem;
 	padding-left: 3rem;
 	padding-right: 3rem;
 }
-.results-content .price-block .plan-title {
+.pricing-content .price-block .plan-title {
 	color: #FFFFFF;
 	padding-bottom: 2.4rem;
 	margin-bottom: 1.2rem;
 	font-size: 2.4rem;
 	position: relative;
 }
-.results-content .price-block .plan-title::after {
+.pricing-content .price-block .plan-title::after {
 	display: block;
 	background-color: rgba(255, 255, 255, 0.3);
 	width: 80px;
@@ -1665,60 +1654,60 @@ height:inherit;
 	bottom: 0;
 	margin-left: -40px;
 }
-.results-content .price-block .plan-price {
+.pricing-content .price-block .plan-price {
 	font-family: "raleway-bold", sans-serif;
 	font-size: 5rem;
 	line-height: 1;
 	margin-bottom: .6rem;
 }
-.results-content .price-block .plan-price sup {
+.pricing-content .price-block .plan-price sup {
 	font-size: 2.4rem;
 	top: -1.5rem;
 	margin-right: 3px;
 }
-.results-content .price-block .price-month {
+.pricing-content .price-block .price-month {
 	margin-bottom: 1.2rem;
 	font-family: "raleway-bold", sans-serif;
 	font-size: 1.6rem;
 }
-.results-content .price-block .price-meta {
+.pricing-content .price-block .price-meta {
 	color: rgba(255, 255, 255, 0.5);
 	line-height: 1.8rem;
 }
-.results-content .price-block .button {
+.pricing-content .price-block .button {
 	color: #353F49;
 	padding: 0 5rem;
 	margin-left: auto;
 	margin-right: auto;
 }
-.results-content .price-block .button:hover,
-.results-content .price-block .button:focus {
+.pricing-content .price-block .button:hover,
+.pricing-content .price-block .button:focus {
 	background: #58687b;
 	color: #FFFFFF;
 }
-.results-content .price-block .features {
+.pricing-content .price-block .features {
 	list-style: none;
 	font-family: "raleway-bold", sans-serif;
 	font-size: 1.5rem;
 	color: rgba(0, 0, 0, 0.4);
 	margin: .6rem 0 1.8rem 0;
 }
-.results-content .price-block .features li {
+.pricing-content .price-block .features li {
 	padding: .6rem 0;
 	border-bottom: 1px solid #EAEAED;
 }
-.results-content .price-block .features li strong {
+.pricing-content .price-block .features li strong {
 	color: #353F49;
 	font-family: "raleway-bold", serif;
 	margin-right: 5px;
 }
-.results-content .price-block .features li:last-child {
+.pricing-content .price-block .features li:last-child {
 	border: none;
 }
-.results-content .primary .top-part {
+.pricing-content .primary .top-part {
 	background: #05bca9;
 }
-.results-content .primary .top-part::before {
+.pricing-content .primary .top-part::before {
 	content: attr(data-info);
 	display: block;
 	min-height: 48px;
@@ -1743,27 +1732,27 @@ height:inherit;
 
 /**
  * responsive:
- * results
+ * pricing
  * -
  */
 
 @media only screen and (max-width:1140px) {
-	.results-content {
+	.pricing-content {
 		max-width: 800px;
 	}
-	.results-content .bgrid {
+	.pricing-content .bgrid {
 		width: 50%;
 		clear: none;
 	}
-	.results-content .bgrid:nth-child(2n+1) {
+	.pricing-content .bgrid:nth-child(2n+1) {
 		clear: both;
 	}
 }
 @media only screen and (max-width:600px) {
-	.results-content {
+	.pricing-content {
 		max-width: 420px;
 	}
-	.results-content .bgrid {
+	.pricing-content .bgrid {
 		width: 100% !important;
 		float: none !important;
 		clear: both !important;
@@ -2006,6 +1995,7 @@ height:inherit;
 
 #faq {
 	background: #EAEAED;
+	padding-top: 12rem;
 	padding-bottom: 12rem;
 }
 .faq-content {

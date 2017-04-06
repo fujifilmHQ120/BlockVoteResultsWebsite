@@ -21,203 +21,182 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/vendor.css">
     <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/ring.css">
+	<link rel="stylesheet" href="css/results.css">
     <!-- script
     ================================================== -->
     <script src="js/modernizr.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="js/jquery-1.11.3.min.js"></script>
-    <script src="js/jquery-migrate-1.2.1.min.js"></script>
-    <script src="js/plugins.js"></script>
-    <script src="js/main.js"></script>
     <!-- favicons
      ================================================== -->
     <link rel="icon" type="image/png" href="favicon.png">
     <script type='text/javascript' src='https://www.gstatic.com/charts/loader.js'></script>
     <script type='text/javascript'>
-        var electionInfo;
-        var electionResults;
-        var districtInfoList = []
         var mykey = "AIzaSyByN_-mElAYg03SU-qdOT62iOxhC5Yeos8";
-        $.ajax({
-            type: 'GET',
-            url: BVbaseURL + getElectionInfo,
-            dataType: 'json'
-        }).done(function (data) {
-
-            if (data.error) {
-                console.error("error getting election info")
-                console.error(data.error)
-            }
-
-            electionInfo = data;
-            console.log(electionInfo);
-
-            var resultsTitle = document.getElementById('resultTitle')
-            resultsTitle.innerHTML = resultsTitle.innerHTML + " for " + electionInfo.response._id;
-
-            $.ajax({
-                type: 'GET',
-                url: BVbaseURL + results,
-                dataType: 'json',
-            }).done(function (data) {
-
-                if (data.error) {
-                    console.error("error getting results info")
-                    console.error(data.error)
-                }
-
-                data.response = JSON.parse(data.response);
-                electionResults = data;
-                console.log(electionResults)
-
-                electionInfo.response.electionData.districts.forEach(function callback(currVal, index, array) {
-                    var POSTdata = {
-                        'district': currVal
-                    };
-                    $.ajax({
-                        type: 'POST',
-                        url: BVbaseURL + readDistrict,
-                        dataType: 'json',
-                        data: POSTdata
-                    }).done(function (data) {
-                        if (data.error) {
-                            console.error("error getting district info")
-                            console.error(data.error)
-                        }
-                        data.response = JSON.parse(data.response);
-                        districtInfoList.push(data)
-
-                        if (districtInfoList.length === electionInfo.response.electionData.districts.length) {
-                            google.charts.load('upcoming', { 'packages': ['geochart', 'corechart'], mapsApiKey: mykey });
-                            google.charts.setOnLoadCallback(drawMarkersMap);
-                        }
+     google.charts.load('upcoming', {'packages': ['geochart', 'corechart'], mapsApiKey: mykey});
+     google.charts.setOnLoadCallback(drawMarkersMap);
 
 
-                    });
-                });
-                console.log(districtInfoList)
+     var edin_pop = 495360;
+     var glasgow_pop = 598830;
+     var aberdeen_pop = 228990;
+     var Dundee_pop = 148210;
 
-            });
+     var edin = {
+        'yes': .40*edin_pop,
+        'no': .50*edin_pop,
+        'maybe': .10*edin_pop
+     }
 
+     var glasg = {
+        'yes': .70*glasgow_pop,
+        'no': .20*glasgow_pop,
+        'maybe': .10*glasgow_pop
+     }
 
-            //console.log(districtInfoList);
-        });
+     var aber = {
+        'yes': .20*aberdeen_pop,
+        'no': .75*aberdeen_pop,
+        'maybe': .5*aberdeen_pop
+     }
 
-
-        function drawMarkersMap() {
-
-            var chartcontainer = document.getElementById("chartContainer");
-
-            while (chartcontainer.hasChildNodes()) {
-                chartcontainer.removeChild(chartcontainer.lastChild);
-            }
-
-
-            /*            var data = google.visualization.arrayToDataTable([                //commenting out map because not all elections can be pinpointed to a city
-                            ['City', 'No', 'Yes'],
-                            ['Edinburgh', edin['no'], edin['yes']],
-                            ['Glasgow', glasg['no'], glasg['yes']],
-                            ['Aberdeen', aber['no'], aber['yes']],
-                            ['Dundee', dun['no'], dun['yes']]
-                        ]);
-            
-                        var options = {
-                            region: 'GB',
-                            displayMode: 'markers',
-                            colorAxis: { colors: ['green', 'blue'] }
-                        };
-            
-                        var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
-                        chart.draw(data, options);*/
-
-            // Total results pie chart 
-            var TotalData = new google.visualization.DataTable();
-            TotalData.addColumn('string', 'choice');
-            TotalData.addColumn('number', 'votes');
-            var rows = [];
-            var totalVotes = 0;
-
-            electionInfo.response.electionData.voteOptions.forEach(function (element) {
-                rows.push([element, electionResults.response.TotalVotes[element]])
-                totalVotes += electionResults.response.TotalVotes[element];
-            });
-
-            TotalData.addRows(rows);
-
-            var todelete = document.getElementById("defaultResults");
-
-            if (todelete) {
-                todelete.parentNode.removeChild(todelete);
-            }
-
-            if (totalVotes == 0) {
-                var h = document.createElement("h5");
-                var t = document.createTextNode("No votes have been cast yet");
-                h.appendChild(t);
-                chartcontainer.appendChild(h);
-            } else {
-
-                var h = document.createElement("h5");
-                var t = document.createTextNode("Total Results");
-                h.appendChild(t);
-                chartcontainer.appendChild(h);
+      var dun = {
+        'yes': .45*Dundee_pop,
+        'no': .45*Dundee_pop,
+        'maybe': .90*Dundee_pop
+     }
 
 
-                var div = document.createElement("div");
-                div.className = "google_chart"
-                div.id = 'chart_totals'
-                chartcontainer.appendChild(div);
+      function drawMarkersMap() {
+      var data = google.visualization.arrayToDataTable([
+        ['City',   'No', 'Yes'],
+        ['Edinburgh',      edin['no'],    edin['yes']],
+        ['Glasgow',      glasg['no'],    glasg['yes']],
+        ['Aberdeen',    aber['no'],    aber['yes']],
+        ['Dundee',      dun['no'],    dun['yes']]
+      ]);
 
-                // Set chart options
-                var TotalOptions = {
-                    fontName: "raleway-bold", backgroundColor: "#14181e", color: "white", legend: { textStyle: { color: 'white' } }
-                };
-                var chart = new google.visualization.PieChart(document.getElementById('chart_totals'));
-                chart.draw(TotalData, TotalOptions);
+      var options = {
+        region: 'GB',
+        displayMode: 'markers',
+        colorAxis: {colors: ['green', 'blue']}
+      };
 
-                //generate pies for EACH DISTRICT
-                //generate chart
-                districtInfoList.forEach(function (district) { //for each district
-                    var totalVotesDistrict = 0;
-                    rows = [];
-                    var data = new google.visualization.DataTable();
-                    data.addColumn('string', 'choice');
-                    data.addColumn('number', 'votes');
-                    electionInfo.response.electionData.voteOptions.forEach(function (element) { //for each vote option
-                        rows.push([element, district.response.TotalVotes[element]])
-                        totalVotesDistrict += district.response.TotalVotes[element];
-                    });
+      var chart = new google.visualization.GeoChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
 
-                    data.addRows(rows);
-                    var options = { fontName: "raleway-bold", backgroundColor: "#14181e", color: "white", legend: { textStyle: { color: 'white' } } };
+// Total pie chart 
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'choice');
+        data.addColumn('number', 'votes');
+        data.addRows([
+          ['Yes', edin['yes']+ glasg['yes'] + aber['yes'] + dun['yes'] ],
+          ['No', edin['no']+ glasg['no'] + aber['no'] + dun['no']],
+          ['Maybe', edin['maybe']+ glasg['maybe'] + aber['maybe'] + dun['maybe']]
+        ]);
 
-                    if (totalVotesDistrict != 0) {
+        // Set chart options
+        var options = {'title':'Total Results',
+                       'width':400,
+                       'height':300};
 
-                        var div = document.createElement("div");
-                        div.className = "google_chart"
-                        div.id = 'chart_' + district.response.DistrictName
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_totals'));
+        chart.draw(data, options);
 
-                        //var chart = new google.visualization.PieChart(document.getElementById('chart_' + district.response.DistrictName));
-                        var chart = new google.visualization.PieChart(div);
-                        var h = document.createElement("h5");
-                        var t = document.createTextNode(district.response.DistrictName);
-                        h.appendChild(t);
-                        chartcontainer.appendChild(h);
-                        chartcontainer.appendChild(div);
-                        chart.draw(data, options);
 
-                    }
-                });
-            }
-        }
+
+
+// Edinburgh pie chart 
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'choice');
+        data.addColumn('number', 'votes');
+        data.addRows([
+          ['Yes', edin['yes']],
+          ['No', edin['no']],
+          ['Maybe', edin['maybe']]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Edinburgh Results',
+                       'width':400,
+                       'height':300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_edinburgh'));
+        chart.draw(data, options);
+
+// Glasgow pie chart 
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'choice');
+        data.addColumn('number', 'votes');
+        data.addRows([
+          ['Yes', glasg['yes']],
+          ['No', glasg['no']],
+          ['Maybe', glasg['maybe']]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Glasgow Results',
+                       'width':400,
+                       'height':300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_glasgow'));
+        chart.draw(data, options);
+
+// Aberdeen pie chart 
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'choice');
+        data.addColumn('number', 'votes');
+        data.addRows([
+          ['Yes', aber['yes']],
+          ['No', aber['no']],
+          ['Maybe', aber['maybe']]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Aberdeen Results',
+                       'width':400,
+                       'height':300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_aberdeen'));
+        chart.draw(data, options);
+
+// Dundee pie chart 
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'choice');
+        data.addColumn('number', 'votes');
+        data.addRows([
+          ['Yes', dun['yes']],
+          ['No', dun['no']],
+          ['Maybe', dun['maybe']]
+        ]);
+
+        // Set chart options
+        var options = {'title':'Dundee Results',
+                       'width':400,
+                       'height':300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart_dundee'));
+        chart.draw(data, options);
+
+
+
+
+    };
+
+
     </script>
 
 
     <style media="screen" type="text/css">
-        .google_chart {
-            padding-bottom: 60px;
-        }
+
+    .google_chart{
+        padding-bottom: 60px;
+    }
+
     </style>
 </head>
 
@@ -234,7 +213,7 @@
                     <li class="current"><a class="smoothscroll" href="#intro" title="">Home</a></li>
                     <li><a class="smoothscroll" href="#process" title="">Process</a></li>
                     <li><a class="smoothscroll" href="#features" title="">Features</a></li>
-                    <li><a href="#results" title="">Results</a></li>
+                    <li><a class = "smoothscroll" href="#pricing" title="">Results</a></li>
                     <li><a class="smoothscroll" href="#faq" title="">FAQ</a></li>
                 </ul>
             </nav>
@@ -253,10 +232,9 @@
                    <div class='video-link'>
                         <a href="#video-popup"><img src="images/play-button.png" alt=""></a>
                     </div>-->
-                    <h5 id="welcome">Welcome to BlockVote</h5>
+                    <h5>Welcome to BlockVote</h5>
                     <h1>The future of voting, today.</h1>
-
-                    <a id="learnMore" class="button stroke smoothscroll" href="#process" title="">Learn More</a>
+                    <a class="button stroke smoothscroll" href="#process" title="">Learn More</a>
                 </div>
             </div>
         </div>
@@ -264,8 +242,7 @@
         ========================================================= -->
         <div id="video-popup" class="popup-modal mfp-hide">
             <div class="fluid-video-wrapper">
-                <iframe src="http://player.vimeo.com/video/14592941?title=0&amp;byline=0&amp;portrait=0&amp;color=faec09" width="500" height="281"
-                    frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+                <iframe src="http://player.vimeo.com/video/14592941?title=0&amp;byline=0&amp;portrait=0&amp;color=faec09" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
             </div>
             <a class="close-popup">Close</a>
         </div>
@@ -279,8 +256,7 @@
             <div class="col-twelve with-bottom-line">
                 <h5>Process</h5>
                 <h1>How it works?</h1>
-                <p class="lead">Blockvote is an online voting platform that allows for secure, annonymous and verifiable online voting using
-                    the power if IBM's Bluemix Blockchain technology.</p>
+                <p class="lead">Blockvote is an online voting platform that allows for secure, annonymous and verifiable online voting using the power of IBM's Bluemix Blockchain technology.</p>
             </div>
         </div>
         <div class="row process-content">
@@ -291,15 +267,14 @@
                 </div>
                 <div class="item" data-item="2">
                     <h5>Register</h5>
-                    <p>Bring your phone and government identification to a local polling station. Meet with a registrar to receive
-                        to get permission to vote in the election.</p>
+                    <p>Bring your phone and government identification to a local polling station. Meet with a registrar to receive to get permission to vote in the election.</p>
                 </div>
             </div>
             <!-- /left-side -->
             <div class="right-side">
                 <div class="item" data-item="3">
                     <h5>Vote</h5>
-                    <p>Once you have permission, you can vote from anywhere, whenever you want</p>
+                    <p>Once you have permission, you can vote from anywhere.</p>
                 </div>
                 <div class="item" data-item="4">
                     <h5>Verify</h5>
@@ -329,8 +304,7 @@
                     <div class="service-content">
                         <h3 class="h05">Secure</h3>
                         <p>
-                            Blockvote uses the latest web technologies to ensure that an election is completed securely. Only voters approved by a registrar
-                            can vote, and using the power of the blockchain, no one can change a vote after it is cast.
+                            Blockvote uses the latest web technologies to ensure that an election is completed securely. Only voters approved by a registrar can vote, and using the power of the blockchain, no one can change a vote after it is cast.
                         </p>
                     </div>
                 </div>
@@ -340,8 +314,7 @@
                     <div class="service-content">
                         <h3 class="h05">Anonymous</h3>
                         <p>
-                            Using powerful cryptographic techniques, a vote can never be tied back to the person who cast it. All votes are completely
-                            anonymous.
+                            Using powerful cryptographic techniques, a vote can never be tied back to the person who cast it. All votes are completely anonymous.
                         </p>
                     </div>
                 </div>
@@ -351,8 +324,7 @@
                     <div class="service-content">
                         <h3 class="h05">verifiable</h3>
                         <p>
-                            All voting information is recorded on the Blockchain and can be audited later. The record is impossible to modify and contains
-                            every piece of information necessary to ensure the results of an election are honest.
+                            All voting information is recorded on the Blockchain and can be audited later. The record is impossible to modify and contains every piece of information necessary to ensure the results of an election are honest.
                         </p>
                     </div>
                 </div>
@@ -363,106 +335,138 @@
         <!-- features-content -->
     </section>
     <!-- /features -->
-    <!-- charts
+    <!-- pricing
     ================================================== -->
-    <section id="results">
+    <section id="pricing">
+        <div class="row section-intro" style = "position:static">
+            <div class="col-twelve with-bottom-line">
+                <h1>Live Results:</h1>
+                <h5></h5>
+            </div>
+            <div class="row section-intro">
+            </div>
+			
+			<!-- div for results -->
+			<div id="resultsSection"></div>
+			
+			
+            <!-- map -->
+            <!--<h5>Total Results</h5>        
+            <div id="chart_div" class="google_chart" style="width: 500px; height: 200px;"></div>
+            <div id="chart_totals" class="google_chart" style="width: 500px; height: 200px;"></div>
+
+            <h5>Edinburgh</h5>
+            <div id="chart_edinburgh" class="google_chart" style="width: 500px; height: 200px;"></div>
+            <h5>Glasgow</h5>
+            <div id="chart_glasgow" class="google_chart" style="width: 500px; height: 200px;"></div>
+            <h5>Aberdeen</h5>
+            <div id="chart_aberdeen" class="google_chart" style="width: 500px; height: 200px;"></div>
+            <h5>Dundee</h5>
+            <div id="chart_dundee" class="google_chart" style="width: 500px; height: 200px;"></div>-->
+
+        </div>
+        <div class="row pricing-content">
+            <div class="pricing-tables block-1-4 group">
+                <div class="bgrid">
+                    <div class="price-block">
+                    </div>
+                </div>
+                <!-- /price-block -->
+                <div class="bgrid">
+                    <div class="price-block primary">
+                    </div>
+                </div>
+                <!-- /price-block -->
+                <div class="bgrid">
+                    <div class="price-block">
+                    </div>
+                </div>
+                <!-- /price-block -->
+                <div class="bgrid">
+                </div>
+                <!-- /price-block -->
+            </div>
+            <!-- /pricing-tables -->
+        </div>
+        <!-- /pricing-content -->
+    </section>
+    <!-- /pricing -->
+    <!-- faq
+    ================================================== -->
+    <section id="faq">
         <div class="row section-intro">
             <div class="col-twelve with-bottom-line">
-                <h1 id="resultTitle">Live Results</h1>
-
-            </div>
-            <div class="row section-intro">
-            </div>
-
-            <!-- map -->
-            <!--div id="chart_div" class="google_chart" style="width: 500px; height: 200px;"></div-->
-
-            <div id="chartContainer">
-
-
-                <h5 id="defaultResults">Loading live results</h5>
-                <div class="spinner"></div>
-
-
+                <h5>Faq</h5>
+                <h1>Questions and Answers.</h1>
             </div>
         </div>
-        <!-- faq
-    ================================================== -->
-        <section id="faq">
-            <div class="row section-intro">
-                <div class="col-twelve with-bottom-line">
-                    <h5>Faq</h5>
-                    <h1>Questions and Answers.</h1>
+        <div class="row faq-content">
+            <div class="q-and-a block-1-2 block-tab-full group">
+                <div class="bgrid">
+                    <h3>What platforms are available?</h3>
+                    <p>Right now, Blockvote is only on Android. In the future it may come to iOS, Windows, Mac and Linux</p>
+                </div>
+                <div class="bgrid">
+                    <h3>What’s a Blockchain?</h3>
+                    <p> A blockchain is a distributed database where every node has an entire copy of the data set, and all change history is recorded. Each node helps establish the world state of the database using a consensus algorithm, adding data to blocks. Each block is cryptographically connected to the last one</p>
+                </div>
+                <div class="bgrid">
+                    <h3>What's Bluemix?</h3>
+                    <p>IBM's online cloud platform as a service. It enables users to quickly create, deploy and manage cloud based applications. It also offers a catalog of services from IBM and other companies which include the IBM Blockchain.</p>
+                </div>
+                <div class="bgrid">
+                    <h3>How are votes anonymous, and verifiable?</h3>
+                    <p>Blockvote uses a blind signature scheme, allowing votes to be verified, but hiding the identity of the voter. </p>
                 </div>
             </div>
-            <div class="row faq-content">
-                <div class="q-and-a block-1-2 block-tab-full group">
-                    <div class="bgrid">
-                        <h3>What platforms are available?</h3>
-                        <p>Right now, Blockvote is only on Android. In the future it may come to iOS, Windows, Mac and Linux</p>
-                    </div>
-                    <div class="bgrid">
-                        <h3>What’s a Blockchain?</h3>
-                        <p> A blockchain is a distributed database where every node has an entire copy of the data set, and all
-                            change history is recorded. Each node helps establish the world state of the database using a
-                            consensus algorithm, adding data to blocks. Each block is cryptographically connected to the
-                            last one</p>
-                    </div>
-                    <div class="bgrid">
-                        <h3>What's Bluemix?</h3>
-                        <p>IBM's online cloud platform as a service. It enables users to quickly create, deploy and manage cloud
-                            based applications. It also offers a catalog of services from IBM and other companies which include
-                            the IBM Blockchain.</p>
-                    </div>
-                    <div class="bgrid">
-                        <h3>How are votes anonymous, and verifiable?</h3>
-                        <p>Blockvote uses a blind signature scheme, allowing votes to be verified, but hiding the identity of
-                            the voter. </p>
-                    </div>
-                </div>
-                <!-- /q-and-a -->
-            </div>
-            <!-- /faq-content -->
-        </section>
-        <!-- /faq -->
-        <!-- footer
-    ================================================== -->
-        <footer>
-            <div class="footer-main">
-                <div class="row">
-                    <div class="col-two tab-1-3 mob-1-2 social-links">
-                        <div class="footer-logo"></div>
-                        <p>
-                            2500 University Dr NW
-                            <br> Calgary, AB, T2N 1N4
-                            <br>
-                        </p>
-                    </div>
-                    <!-- /footer-info -->
-                </div>
-                <!-- /row -->
-            </div>
-            <!-- /footer-main -->
-            <div class="footer-bottom">
-                <div class="row">
-                    <div class="col-twelve">
-                        <div class="copyright">
-                            <span>© Copyright Lhander 2016.</span>
-                            <span>Design by <a href="http://www.styleshout.com/">styleshout</a></span>
-                        </div>
-                        <div id="go-top" style="display: block;">
-                            <a class="smoothscroll" title="Back to Top" href="#top"><i class="icon ion-android-arrow-up"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- /footer-bottom -->
-            </div>
-        </footer>
-        <div id="preloader">
-            <div id="loader"></div>
+            <!-- /q-and-a -->
         </div>
-        <!-- Java Script
+        <!-- /faq-content -->
+    </section>
+    <!-- /faq -->
+    <!-- footer
     ================================================== -->
+    <footer>
+        <div class="footer-main">
+            <div class="row">
+                <div class="col-two tab-1-3 mob-1-2 social-links">
+                    <div class="footer-logo"></div>
+                    <p>
+                        2500 University Dr NW
+                        <br> Calgary, AB, T2N 1N4
+                        <br>
+                    </p>
+                </div>
+                <!-- /footer-info -->
+            </div>
+            <!-- /row -->
+        </div>
+        <!-- /footer-main -->
+        <div class="footer-bottom">
+            <div class="row">
+                <div class="col-twelve">
+                    <div class="copyright">
+                        <span>© Copyright Lhander 2016.</span>
+                        <span>Design by <a href="http://www.styleshout.com/">styleshout</a></span>
+                    </div>
+                    <div id="go-top" style="display: block;">
+                        <a class="smoothscroll" title="Back to Top" href="#top"><i class="icon ion-android-arrow-up"></i></a>
+                    </div>
+                </div>
+            </div>
+            <!-- /footer-bottom -->
+        </div>
+    </footer>
+    <div id="preloader">
+        <div id="loader"></div>
+    </div>
+    <!-- Java Script
+    ================================================== -->
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/main.js"></script>
+	<script src="js/results.js"></script>
 </body>
 
 </html>
